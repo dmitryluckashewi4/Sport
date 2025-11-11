@@ -170,8 +170,48 @@ function endTest(){
   }
   const statsText=`Всего сигналов: ${total}\nПравильных: ${correct}\nОшибок: ${wrong}\nСреднее время ответа: ${avgTime} мс\nЛучшее время ответа: ${bestTime} мс`;
   document.getElementById("stats").textContent=statsText;
-  document.getElementById("status").textContent="Тест завершён. Можете выбрать другое количество цветов и запустить снова.";
+  document.getElementById("status").textContent="Тест завершён. Результат сохранён.";
+
+  if(currentUser){
+    const raw = localStorage.getItem("stroopResults") || "[]";
+    let results;
+    try { results = JSON.parse(raw); } catch(e){ results = []; }
+    results.push({
+      user: currentUser,
+      correct,
+      wrong,
+      bestTime,
+      date: new Date().toLocaleString()
+    });
+    localStorage.setItem("stroopResults", JSON.stringify(results));
+    showLibrary(results);
+  }
 }
+
+function showLibrary(results){
+  const listEl=document.getElementById("resultsList");
+  listEl.innerHTML="";
+  results.forEach(r=>{
+    const div=document.createElement("div");
+    div.textContent=`${r.date} — ${r.user}: правильных ${r.correct}, ошибок ${r.wrong}, лучшая реакция ${r.bestTime} мс`;
+    listEl.appendChild(div);
+  });
+}
+
+(function initLibrary(){
+  const raw = localStorage.getItem("stroopResults") || "[]";
+  let results;
+  try { results = JSON.parse(raw); } catch(e){ results = []; }
+  showLibrary(results);
+})();
+
+function endTest(){ ... }   // обновлённая версия
+
+function showLibrary(results){ ... }   // новый блок
+
+(function initLibrary(){ ... })();     // новый блок
+
 </script>
 </body>
 </html>
+
